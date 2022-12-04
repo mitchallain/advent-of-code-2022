@@ -9,49 +9,63 @@
 constexpr int k_A_Offset = static_cast<int>('A') - 1;
 constexpr int k_X_Offset = static_cast<int>('X') - 1;
 
-bool is_winning_shape(int us, int them)
+enum class GameResult
 {
-  return ((us > them) && (us != 3 || them != 1)) || (us == 1 && them == 3);
+  kLoss = 0,
+  kDraw = 1,
+  kWin = 2,
+};
+
+GameResult get_result(int us, int them)
+{
+  switch (us - them)
+  {
+    case 0:
+      return GameResult::kDraw;
+    case 1:
+    case -2:
+      return GameResult::kWin;
+    default:
+      return GameResult::kLoss;
+  }
 }
 
 int part1_p2_score(const char abc, const char xyz)
 {
-  // 2 beats 1
-  // 3 beats 2
-  // 1 beats 3
   int p1 = static_cast<int>(abc) - k_A_Offset;
   int p2 = static_cast<int>(xyz) - k_X_Offset;
-  std::cout << p1 << " vs. " << p2 << '\n';
+  // std::cout << p1 << " vs. " << p2 << '\n';
 
-  int outcome;
-  if (p1 == p2) { outcome = 3; }
-  else if (is_winning_shape(p2, p1))  { outcome = 6; }
-  else { outcome = 0; }
-
-  std::cout << "P2 Score: " << outcome + p2 << '\n';
-
-  return outcome + p2;
+  GameResult outcome = get_result(p2, p1);
+  switch (outcome)
+  {
+    case GameResult::kWin: {
+      return p2 + 6;
+    }
+    case GameResult::kDraw: {
+      return p2 + 3;
+    }
+    default: {
+      return p2;
+    }
+  }
 }
 
 int part2_p2_score(const char abc, const char xyz)
 {
   int p1 = static_cast<int>(abc) - k_A_Offset;
-  // peak laziness
-  int guess1 = p1 % 3 + 1;
-  int guess2 = (p1 + 1) % 3 + 1;
-  std::cout << "P1: " << p1;
-  if (xyz == 'X')
+  int p2;
+  switch (xyz)
   {
-    std::cout << " - need loss, trying " << guess1 << " and " <<  guess2 << '\n';
-    if (is_winning_shape(guess1, p1)) { return guess2 + 0; }
-    else { return guess1 + 0; }
-  }
-  else if (xyz == 'Y') { std::cout << " - need draw\n"; return p1 + 3; }
-  else
-  {
-    std::cout << " - need win, trying " << guess1 << " and " <<  guess2 << '\n';
-    if (is_winning_shape(guess1, p1)) { return guess1 + 6; }
-    else { return guess2 + 6; }
+    case 'X':
+      p2 = (p1 + 1) % 3 + 1;
+      return p2 + 0;
+    case 'Y':
+      p2 = p1;
+      return p2 + 3;
+    default:
+      p2 = p1 % 3 + 1;
+      return p2 + 6;
   }
 }
 
@@ -71,14 +85,14 @@ int main()
     part1_total_score += part1_p2_score(str[0], str[2]);
 
     int part2_inc_score = part2_p2_score(str[0], str[2]);
-    std::cout << "Score: " << part2_inc_score << '\n';
+    // std::cout << "Score: " << part2_inc_score << '\n';
     part2_total_score += part2_inc_score;
-    std::cout << "------\n";
+    // std::cout << "------\n";
   }
 
   auto stop = std::chrono::high_resolution_clock::now();
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-  std::cout << duration.count() << " microseconds" <<std::endl;
+  std::cout << duration.count() << " microseconds" << std::endl;
 
   std::cout << "Part One\n";
   std::cout << "--------\n";
