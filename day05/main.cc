@@ -68,13 +68,12 @@ int main()
   // do some setup
   std::regex stack_nums_re(R"((?:(\d+)\s)+)");
   std::regex moves_re(R"(move (\d+) from (\d+) to (\d+))");
+
   std::string line;
   std::vector<std::string> raw_stacks;
   std::vector<MoveInstruction> instructions;
 
-
   int num_stacks;
-
   bool stack_input = true;
 
   // iterate over lines of the input file
@@ -105,7 +104,6 @@ int main()
   Stacks stacks = string_to_stacks(raw_stacks, num_stacks);
   std::cout << instructions.size() << '\n';
   std::cout << stacks;
-
 
   for (const auto instr : instructions)
   {

@@ -1,6 +1,6 @@
-
 # Created by https://www.toptal.com/developers/gitignore/api/cmake,c++,python
 # Edit at https://www.toptal.com/developers/gitignore?templates=cmake,c++,python
+
 
 ### C++ ###
 # Prerequisites
@@ -191,5 +191,8 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+## ccls cache
+.ccls-cache/
 
 # End of https://www.toptal.com/developers/gitignore/api/cmake,c++,python
