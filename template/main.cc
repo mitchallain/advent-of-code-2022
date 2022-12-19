@@ -7,18 +7,15 @@ int main()
   auto start = std::chrono::high_resolution_clock::now();
 
   // do some setup
-  std::regex e(R"((\w+) (\d+))");
+  // std::regex e(R"((\w+) (\d+))");
+
+  std::vector<std::string> lines;
   std::string str;
 
   // iterate over lines of the input file
   while (std::getline(std::cin, str))
   {
-    std::smatch m;
-    while (std::regex_search(str, m, e))
-    {
-      std::cout << str << std::endl;
-      str = m.suffix();
-    }
+    lines.push_back(str);
   }
 
   auto stop = std::chrono::high_resolution_clock::now();
