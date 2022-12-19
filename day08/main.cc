@@ -32,7 +32,7 @@ int countVisible(const Eigen::MatrixXi& m)
     {
       if (m(i, j) > tallest[i])
       {
-        std::cout << i << " " << j << " is visible from left" << std::endl;
+        // std::cout << i << " " << j << " is visible from left" << std::endl;
         ++visible(i, j);
         tallest[i] = m(i, j);
       }
@@ -47,7 +47,7 @@ int countVisible(const Eigen::MatrixXi& m)
     {
       if (m(i, j) > tallest[i])
       {
-        std::cout << i << " " << j << " is visible from right" << std::endl;
+        // std::cout << i << " " << j << " is visible from right" << std::endl;
         ++visible(i, j);
         tallest[i] = m(i, j);
       }
@@ -63,7 +63,7 @@ int countVisible(const Eigen::MatrixXi& m)
     {
       if (m(i, j) > tallest[j])
       {
-        std::cout << i << " " << j << " is visible from top" << std::endl;
+        // std::cout << i << " " << j << " is visible from top" << std::endl;
         ++visible(i, j);
         tallest[j] = m(i, j);
       }
@@ -78,14 +78,14 @@ int countVisible(const Eigen::MatrixXi& m)
     {
       if (m(i, j) > tallest[j])
       {
-        std::cout << i << " " << j << " is visible from bottom" << std::endl;
+        // std::cout << i << " " << j << " is visible from bottom" << std::endl;
         ++visible(i, j);
         tallest[j] = m(i, j);
       }
     }
   }
   // count visible trees
-  std::cout << visible << std::endl;
+  // std::cout << visible << std::endl;
   return visible.count();
 }
 
@@ -153,7 +153,7 @@ int highestScore(const Eigen::MatrixXi& m)
 
       if (score > max_score)
       {
-        std::cout << "new max score: " << score << " at " << i << " " << j << std::endl;
+        // std::cout << "new max score: " << score << " at " << i << " " << j << std::endl;
         max_score = score;
       }
       std::getchar();
@@ -179,7 +179,7 @@ int main()
   int visible_trees = countVisible(m);
   int scenic_score = highestScore(m);
 
-  std::cout << m.rows() << "x" << m.cols() << std::endl;
+  // std::cout << m.rows() << "x" << m.cols() << std::endl;
 
   auto stop = std::chrono::high_resolution_clock::now();
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
