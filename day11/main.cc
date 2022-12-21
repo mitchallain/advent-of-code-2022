@@ -2,14 +2,15 @@
 #include <regex>
 #include <chrono>
 #include <functional>
+#include <numeric>
 #include <vector>
 
-typedef std::function<int(int)> UnaryIntOp;
-typedef std::function<int(int, int)> BinaryIntOp;
+typedef std::function<int64_t(int64_t)> UnaryIntOp;
+typedef std::function<int64_t(int64_t, int64_t)> BinaryIntOp;
 
 struct Monkey
 {
-  Monkey(UnaryIntOp op, int test_divisible_by, int true_monkey, int false_monkey)
+  Monkey(UnaryIntOp op, int64_t test_divisible_by, int true_monkey, int false_monkey)
     : op(op),
       test_divisible_by(test_divisible_by),
       true_monkey(true_monkey),
@@ -18,35 +19,40 @@ struct Monkey
   {
   }
   UnaryIntOp op;
-  std::vector<int> items;
-  int test_divisible_by;
+  std::vector<int64_t> items;
+  int64_t test_divisible_by;
+  int64_t lcm;  // for part 2 only
   int true_monkey;
   int false_monkey;
-  int inspections;
+  int64_t inspections;
 };
 
 // ostream operator for Monkey
 std::ostream& operator<<(std::ostream& os, const Monkey& m)
 {
   os << "Monkey(" << m.items.size() << " items, test_divisible_by = " << m.test_divisible_by
-    << ", true_monkey = " << m.true_monkey << ", false_monkey = " << m.false_monkey << ")";
+     << ", true_monkey = " << m.true_monkey << ", false_monkey = " << m.false_monkey << ")";
   return os;
 }
 
-void simulateMonkeys(std::vector<Monkey>& monkeys, bool worry_thirds)
+void simulateMonkeys(std::vector<Monkey>& monkeys, bool worry_thirds, int lcm = 1)
 {
   for (auto& monkey : monkeys)
   {
     while (monkey.items.size() > 0)
     {
       ++monkey.inspections;
-      int item = monkey.items.back();
+      int64_t item = monkey.items.back();
       monkey.items.pop_back();
 
       item = monkey.op(item);
       if (worry_thirds)
       {
         item /= 3;
+      }
+      else
+      {
+        item = item % (lcm);
       }
       if (item % monkey.test_divisible_by == 0)
       {
@@ -68,7 +74,8 @@ void simulateMonkeys(std::vector<Monkey>& monkeys, bool worry_thirds)
 
 std::vector<Monkey> parseMonkeys(const std::string& input)
 {
-  std::regex e(R"(Monkey (\d+):\s+Starting items: ((?:\d+(?:, )?)+)\s+Operation: new = old ([+\-*/]) ((?:\d+)|(?:old))\s+Test: divisible by (\d+)\s+If true: throw to monkey (\d+)\s+If false: throw to monkey (\d+))");
+  std::regex e(
+      R"(Monkey (\d+):\s+Starting items: ((?:\d+(?:, )?)+)\s+Operation: new = old ([+\-*/]) ((?:\d+)|(?:old))\s+Test: divisible by (\d+)\s+If true: throw to monkey (\d+)\s+If false: throw to monkey (\d+))");
   std::smatch m;
   std::vector<Monkey> monkeys;
   std::string str(input);
@@ -76,9 +83,10 @@ std::vector<Monkey> parseMonkeys(const std::string& input)
   {
     // print each element in m with a comma and space between
     // std::cout << "Monkey " << m[1] << " has items " << m[2] << std::endl;
-    // std::cout << m[3] << ", " << m[4] << ", " << m[5] << ", " << m[6] << ", " << m[7] << std::endl;
+    // std::cout << m[3] << ", " << m[4] << ", " << m[5] << ", " << m[6] << ", " << m[7] <<
+    // std::endl;
 
-    std::vector<int> items;
+    std::vector<int64_t> items;
     std::regex e2(R"((\d+))");
     std::smatch m2;
     std::string str2 = m[2];
@@ -93,16 +101,16 @@ std::vector<Monkey> parseMonkeys(const std::string& input)
     switch (m[3].str()[0])
     {
       case '+':
-        bop = std::plus<int>();
+        bop = std::plus<int64_t>();
         break;
       case '-':
-        bop = std::minus<int>();
+        bop = std::minus<int64_t>();
         break;
       case '*':
-        bop = std::multiplies<int>();
+        bop = std::multiplies<int64_t>();
         break;
       case '/':
-        bop = std::divides<int>();
+        bop = std::divides<int64_t>();
         break;
     }
 
@@ -121,7 +129,7 @@ std::vector<Monkey> parseMonkeys(const std::string& input)
 
     monkeys.push_back(Monkey(op, std::stoi(m[5]), std::stoi(m[6]), std::stoi(m[7])));
     // reverse the items so they are in the correct order
-    monkeys.back().items = std::vector<int>(items.rbegin(), items.rend());
+    monkeys.back().items = std::vector<int64_t>(items.rbegin(), items.rend());
     // std::cout << monkeys.back() << std::endl;
 
     str = m.suffix();
@@ -152,26 +160,29 @@ int main()
     simulateMonkeys(monkeys, true);
   }
 
-  std::vector<int> top_inspectors;
+  std::vector<int64_t> top_inspectors;
   std::transform(monkeys.begin(), monkeys.end(), std::back_inserter(top_inspectors),
-    [](const Monkey& m) { return m.inspections; });
-  std::sort(top_inspectors.begin(), top_inspectors.end(), std::greater<int>());
+                 [](const Monkey& m) { return m.inspections; });
+  std::sort(top_inspectors.begin(), top_inspectors.end(), std::greater<int64_t>());
   std::cout << "Top inspectors: " << top_inspectors[0] << ", " << top_inspectors[1] << std::endl;
-  int p1_mb = top_inspectors[0] * top_inspectors[1];
+  int64_t p1_mb = top_inspectors[0] * top_inspectors[1];
 
   // part two
   monkeys = parseMonkeys(str);
+  int64_t lcm =
+      std::accumulate(monkeys.begin(), monkeys.end(), 1,
+                      [](int64_t lcm, const Monkey& m) { return lcm * m.test_divisible_by; });
 
   for (int i = 0; i < 10000; ++i)
   {
-    simulateMonkeys(monkeys, false);
+    simulateMonkeys(monkeys, false, lcm);
   }
   top_inspectors.clear();
   std::transform(monkeys.begin(), monkeys.end(), std::back_inserter(top_inspectors),
-    [](const Monkey& m) { return m.inspections; });
-  std::sort(top_inspectors.begin(), top_inspectors.end(), std::greater<int>());
+                 [](const Monkey& m) { return m.inspections; });
+  std::sort(top_inspectors.begin(), top_inspectors.end(), std::greater<int64_t>());
   std::cout << "Top inspectors: " << top_inspectors[0] << ", " << top_inspectors[1] << std::endl;
-  auto p2_mb = static_cast<long long>(top_inspectors[0]) * top_inspectors[1];
+  auto p2_mb = top_inspectors[0] * top_inspectors[1];
 
   auto stop = std::chrono::high_resolution_clock::now();
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
