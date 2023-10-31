@@ -21,7 +21,7 @@ struct Monkey
   UnaryIntOp op;
   std::vector<int64_t> items;
   int64_t test_divisible_by;
-  int64_t lcm;  // for part 2 only
+  int64_t lcm = 1;  // for part 2 only
   int true_monkey;
   int false_monkey;
   int64_t inspections;

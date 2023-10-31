@@ -26,7 +26,7 @@ int main()
   std::cout << "--------\n";
   std::cout << std::endl;
 
-  std::cout << "Part One\n";
+  std::cout << "Part Two\n";
   std::cout << "--------\n";
   std::cout << std::endl;
 
